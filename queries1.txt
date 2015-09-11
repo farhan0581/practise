@@ -1,0 +1,80 @@
+
+select SUM(a.qtysold) quantity,s.pname Name from sales1232 as a inner join product1232 as s on a.pcode=s.pcode where a.pcode in 
+(select pcode from owns1232 where comname="ABC CORPORATION") group by a.pcode ;
+
+select o.comname,s.repcode,s.pcode from owns1232 as o inner join sales1232 as s  on o.pcode=s.pcode
+
+select p.pname,p.pcode,s.repcode,l.comname from product1232 as p inner join sales1232 
+as s on p.pcode=s.pcode inner join sales_rep1232 as l on l.repcode=s.repcode
+
+select pname from product1232 where pcode in (select s.pcode from sales_rep1232 as 
+l join sales1232 as s on l.repcode=s.repcode where repname='AAMIR')
+
+select repname from sales_rep1232 where repcode in (
+select repcode from sales1232 group by repcode having count(repcode)=1);
+
+select max(t.qty),t.rep  from (
+select SUM(s.QTYSOLD) as qty,s.repcode as rep from sales1232 as s group by s.pcode) as t ;
+
+
+<!-- select t.repname,SUM(t.salary+t.final*t.pcom) from (
+select l.repname,l.salary,SUM(s.QTYSOLD) final,s.repcode,s.pcode,p.pcom from sales_rep1232 as l 
+join sales1232 as s on l.repcode=s.repcode
+join product1232 as p on p.pcode=s.pcode
+group by pcode) as t; -->
+
+select t.repname ,MAX(t.salary+t.final*t.pcom) from(
+select l.repname,l.salary,SUM(s.QTYSOLD) final,s.repcode,s.pcode,p.pcom from sales_rep1232 as l 
+join sales1232 as s on l.repcode=s.repcode
+join product1232 as p on p.pcode=s.pcode
+group by pcode) as t;
+
+
+
+select l.repname,s.QTYSOLD from sales_rep1232 as l
+join sales1232 as s on l.repcode=s.repcode
+where s.pcode in (
+select t.pcode from (select pcode,pname,min(pcom) from product1232) as t);
+
+select p.pcode,p.pname,s.repcode,l.repname from product1232 as p
+join sales1232 as s on p.pcode=s.pcode
+join sales_rep1232 as l on l.repcode=s.repcode
+order by p.pcom asc LIMIT 1;
+
+select p.pcode,p.pname,p.pcom from product1232 as p join 
+owns1232 as o on p.pcode=o.pcode
+where o.comname='ABC CORPORATION'
+;
+
+
+
+
+###in this query the order was not mattering mauch....the order of group by and 
+###join is followed by join
+select l.comname,o.pcode,p.pname,c.comhq from sales_rep1232 as l join
+owns1232 as o on l.comname=o.comname
+join product1232 as p on p.pcode=o.pcode
+join company1232 as c on c.comname=l.comname
+where l.comname in ( select t.comname from (
+select comname from sales_rep1232  order by salary desc limit 1) as t ) 
+group by o.pcode
+;
+
+
+select s.pcode,SUM(s.qtysold)*p.pcom commission,p.pname from sales1232 as s 
+join product1232 as p on s.pcode=p.pcode
+group by s.pcode 
+order by commission desc limit 1
+;
+
+select SUM(s.qtysold) from sales1232 as s join 
+sales_rep1232 as l on s.repcode=l.repcode
+where l.comname='ABC CORPORATION'; 
+
+
+
+select p.pname,SUM(s.qtysold) total_quantity from product1232 as p join
+sales1232 as s on p.pcode=s.pcode 
+group by p.pname
+order by total_quantity desc limit 1
+;
