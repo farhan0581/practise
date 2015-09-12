@@ -78,3 +78,43 @@ sales1232 as s on p.pcode=s.pcode
 group by p.pname
 order by total_quantity desc limit 1
 ;
+
+###################################################################################
+
+SET 2
+
+//explain
+
+1.select e.name,e.city from employee32 as e join
+department32 as d on d.deptno=e.deptno
+where d.dname='accounting'
+
+2.select e.name,e.empno,s.basic+s.hr+s.da-s.tax,d.dname from employee32 as e join 
+salary32  as s on e.empno=s.empno
+join department32 as d on d.deptno=e.deptno
+where s.basic+s.hr+s.da-s.tax >12000
+
+select * from employee32 as ep inner join salary32 as sl on sl.empno=ep.empno order by tax desc limit 1;
+
+//doesnt work----    select * from salary32 where tax = max(tax)  invalid use of group function
+// * consumes more time then selecting whole rows
+// select * from employee32 where empno in (select empno from salary32 order by tax desc limit 1)  ---doesnt work
+select * from employee32 where empno in (select t.empno from (select empno from salary32 order by tax desc limit 1) as t )  --- work
+
+limit offset,limit offset of row1=0
+max rows returned from offst
+
+//max clerks
+select count(e.job) as number,d.deptno,d.dname from employee32 as e join
+department32 as d on d.deptno=e.deptno
+where e.job='clerk' group by d.deptno
+order by number desc limit 1
+
+//The HAVING clause was added to SQL because the WHERE keyword could not be used with aggregate functions
+
+select count(e.name) as count,d.deptno from employee32 as e join
+department32 as d on e.deptno=d.deptno
+group by d.deptno
+
+select * from employee32 where deptno=10 and
+sal >= (select max(sal) from employee32 where deptno=30)
