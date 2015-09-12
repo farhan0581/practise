@@ -118,3 +118,5 @@ group by d.deptno
 
 select * from employee32 where deptno=10 and
 sal >= (select max(sal) from employee32 where deptno=30)
+
+
