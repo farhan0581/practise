@@ -10,7 +10,7 @@ int main()
 	char ch,ch2,i=0,temp[20],under[10][10],alpha[10][10],num[10][10],comman[7][4],j=0;
 	ifstream f,d;
 	f.open("input.txt",ios::in);
-	d.open("dfa.txt",ios::in);
+	//d.open("dfa.txt",ios::in);
 	if(!f || !d)
 	{
 		cout<<"sorry file(s) does not exist";
