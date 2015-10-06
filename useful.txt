@@ -1,0 +1,206 @@
+
+Setting environment for using XAMPP for Windows.
+farhan@MFK c:\xampp
+# mysql -u root -p
+Enter password:
+ERROR 2003 (HY000): Can't connect to MySQL server on 'localhost' (10061)
+
+farhan@MFK c:\xampp
+# mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1
+Server version: 5.5.36 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2014, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use test;
+Database changed
+mysql> select * from abc;
++----+------+---------+------+
+| id | name | phone   | eid  |
++----+------+---------+------+
+|  1 | aaa  |   12345 |    0 |
+|  2 | aaa  | 1234590 |    0 |
+|  3 | aaa  | 1234590 |    0 |
++----+------+---------+------+
+3 rows in set (0.00 sec)
+
+mysql> explain select * from abc;
++----+-------------+-------+------+---------------+------+---------+------+------+-------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra |
++----+-------------+-------+------+---------------+------+---------+------+------+-------+
+|  1 | SIMPLE      | abc   | ALL  | NULL          | NULL | NULL    | NULL |    3 |       |
++----+-------------+-------+------+---------------+------+---------+------+------+-------+
+1 row in set (0.00 sec)
+
+mysql> explain select id,name from abc;
++----+-------------+-------+------+---------------+------+---------+------+------+-------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra |
++----+-------------+-------+------+---------------+------+---------+------+------+-------+
+|  1 | SIMPLE      | abc   | ALL  | NULL          | NULL | NULL    | NULL |    3 |       |
++----+-------------+-------+------+---------------+------+---------+------+------+-------+
+1 row in set (0.00 sec)
+
+mysql> explain select id,name from abc where eid=0;
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra       |
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+|  1 | SIMPLE      | abc   | ALL  | NULL          | NULL | NULL    | NULL |    3 | Using where |
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select id,name from abc where eid=0;
++----+------+
+| id | name |
++----+------+
+|  1 | aaa  |
+|  2 | aaa  |
+|  3 | aaa  |
++----+------+
+3 rows in set (0.00 sec)
+
+mysql> explain select id,name from abc where id=0;
++----+-------------+-------+------+---------------+------+---------+------+------+-----------------------------------------------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra                                               |
++----+-------------+-------+------+---------------+------+---------+------+------+-----------------------------------------------------+
+|  1 | SIMPLE      | NULL  | NULL | NULL          | NULL | NULL    | NULL | NULL | Impossible WHERE noticed after reading const tables |
++----+-------------+-------+------+---------------+------+---------+------+------+-----------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> explain select id,name from abc where id=1;
++----+-------------+-------+-------+---------------+---------+---------+-------+------+-------+
+| id | select_type | table | type  | possible_keys | key     | key_len | ref   | rows | Extra |
++----+-------------+-------+-------+---------------+---------+---------+-------+------+-------+
+|  1 | SIMPLE      | abc   | const | PRIMARY       | PRIMARY | 4       | const |    1 |       |
++----+-------------+-------+-------+---------------+---------+---------+-------+------+-------+
+1 row in set (0.00 sec)
+
+mysql> alter table abc create index on eid;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'create index on eid' at line 1
+mysql> alter table abc  index on eid;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'on eid' at line 1
+mysql> create index eid on abc(eid);
+Query OK, 0 rows affected (0.22 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> explain select id,name from abc where id=1 or eid=0;
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra       |
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+|  1 | SIMPLE      | abc   | ALL  | PRIMARY,eid   | NULL | NULL    | NULL |    3 | Using where |
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+1 row in set (0.00 sec)
+
+mysql> explain select id,name from abc where eid=0;
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra       |
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+|  1 | SIMPLE      | abc   | ALL  | eid           | NULL | NULL    | NULL |    3 | Using where |
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+1 row in set (0.00 sec)
+
+mysql> explain select id,name from abc where eid>0;
++----+-------------+-------+-------+---------------+------+---------+------+------+-------------+
+| id | select_type | table | type  | possible_keys | key  | key_len | ref  | rows | Extra       |
++----+-------------+-------+-------+---------------+------+---------+------+------+-------------+
+|  1 | SIMPLE      | abc   | range | eid           | eid  | 5       | NULL |    1 | Using where |
++----+-------------+-------+-------+---------------+------+---------+------+------+-------------+
+1 row in set (0.00 sec)
+
+mysql> select id,name from abc where eid=0;
++----+------+
+| id | name |
++----+------+
+|  1 | aaa  |
+|  2 | aaa  |
+|  3 | aaa  |
++----+------+
+3 rows in set (0.00 sec)
+
+mysql> explain select id,name from abc where eid=0;
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+| id | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra       |
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+|  1 | SIMPLE      | abc   | ALL  | eid           | NULL | NULL    | NULL |    3 | Using where |
++----+-------------+-------+------+---------------+------+---------+------+------+-------------+
+1 row in set (0.00 sec)
+
+mysql> explain select id,name from abc where eid>1;
++----+-------------+-------+-------+---------------+------+---------+------+------+-------------+
+| id | select_type | table | type  | possible_keys | key  | key_len | ref  | rows | Extra       |
++----+-------------+-------+-------+---------------+------+---------+------+------+-------------+
+|  1 | SIMPLE      | abc   | range | eid           | eid  | 5       | NULL |    1 | Using where |
++----+-------------+-------+-------+---------------+------+---------+------+------+-------------+
+1 row in set (0.00 sec)
+
+mysql> describe abc;
++-------+-------------+------+-----+---------+----------------+
+| Field | Type        | Null | Key | Default | Extra          |
++-------+-------------+------+-----+---------+----------------+
+| id    | int(11)     | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(30) | NO   |     | NULL    |                |
+| phone | int(11)     | NO   |     | NULL    |                |
+| eid   | int(11)     | YES  | MUL | 0       |                |
++-------+-------------+------+-----+---------+----------------+
+4 rows in set (0.05 sec)
+
+mysql> show create table abc;
++-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------+
+| Table | Create Table
+                                                         |
++-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------+
+| abc   | CREATE TABLE `abc` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL,
+  `phone` int(11) NOT NULL,
+  `eid` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `eid` (`eid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 |
++-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> alter table abc set engine=myiasm;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'set engine=myiasm' at line 1
+mysql> alter table abc  engine=myiasm;
+Query OK, 0 rows affected, 1 warning (0.14 sec)
+Records: 0  Duplicates: 0  Warnings: 1
+
+mysql> show create table abc;
++-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------+
+| Table | Create Table
+                                                         |
++-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------+
+| abc   | CREATE TABLE `abc` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL,
+  `phone` int(11) NOT NULL,
+  `eid` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `eid` (`eid`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1 |
++-------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> alter table abc  engine=myiasm;
+Query OK, 0 rows affected, 1 warning (0.03 sec)
+Records: 0  Duplicates: 0  Warnings: 1
+
+mysql> alter table abc  engine=myiasm;
+Query OK, 0 rows affected, 1 warning (0.08 sec)
+Records: 0  Duplicates: 0  Warnings: 1
+
+mysql> ^A
